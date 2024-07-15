@@ -1,3 +1,4 @@
+import os
 import chainlit as cl
 import pandas as pd
 import json
@@ -7,6 +8,7 @@ from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
 from ibm_watsonx_ai.foundation_models.utils.enums import DecodingMethods
 from ibm_watsonx_ai.foundation_models import Model
 from tabulate import tabulate
+from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -84,29 +86,6 @@ def call_predictor_api(json_data):
     print("response json", response.json())
     return response.json()
 
-# Generate Report function
-def generate_report(prediction_result):
-    print("prediction_result:", json.dumps(prediction_result, indent=2))
-    instruction = "Based on the following prediction results, generate a detailed report."
-    prompt1 = "\n".join([instruction, "Report:", json.dumps(prediction_result, indent=2)])
-    print(prompt1)
-    
-    model_details = model.get_details()
-    # print("model_details:", model_details)
-
-    response = model.generate_text(prompt=prompt1)
-    print("Raw response from generate_text:", response)
-    
-    if not response:
-        print("Error: Empty response from generate_text")
-        return "Error: No response from the model."
-
-    try:
-        response_json = json.loads(response)
-        return response_json.get('generated_text', response)
-    except json.JSONDecodeError as e:
-        print(f"Error parsing the response JSON: {e}")
-        return response
 
 def generate_report_and_table(prediction_result, csv_file_path):
     # Load the CSV file into a DataFrame
@@ -207,32 +186,6 @@ async def start():
         content=f"Generated Report: {report}\n\n{markdown_table}"
     ).send()
 
-@cl.on_message
-async def main(message: cl.Message):
-    report = cl.user_session.get("report")
-    table_df = cl.user_session.get("table_df")
-    print("report:", report)
-
-    if not report:
-        await cl.Message(
-            content="No report found. Please upload a CSV file and generate a report first."
-        ).send()
-        return
-
-    # Convert table to Markdown
-    markdown_table = dataframe_to_markdown(table_df)
-
-    # Generate a response to the user's question based on the report
-    prompt = f"Using the following report: {report}, and the table: {markdown_table}, answer the question: {message.content}"
-    response = model.generate_text(prompt=prompt)
-    print("Response from LLM:", response)
-
-    # Send the answer to the user
-    await cl.Message(
-        content=response
-    ).send()
-
-# Main function to handle user queries
 @cl.on_message
 async def main(message: cl.Message):
     report = cl.user_session.get("report")
