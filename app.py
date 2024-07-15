@@ -8,7 +8,10 @@ from ibm_watsonx_ai.foundation_models.utils.enums import DecodingMethods
 from ibm_watsonx_ai.foundation_models import Model
 from tabulate import tabulate
 
-# IBM Watson configuration
+# Load environment variables from .env file
+load_dotenv()
+
+# IBM LLM Model configuration
 parameters = {
     GenParams.MIN_NEW_TOKENS: 0,
     GenParams.MAX_NEW_TOKENS: 300,
@@ -18,10 +21,10 @@ parameters = {
 
 credentials = {
     "url": "https://us-south.ml.cloud.ibm.com",
-    "apikey": "kkL8o-EO6G_7MTUz9mtKdszgeASisPSc2kNpLQNBwReT"
+    "apikey": os.getenv("IBM_API_KEY")
 }
 
-project_id = "fd83c575-f032-41e0-b235-b59bef0f343e"
+project_id = os.getenv("PROJECT_ID")
 model_id = ModelTypes.LLAMA_3_8B_INSTRUCT
 
 model = Model(
@@ -65,7 +68,7 @@ def transform_to_json(file_path):
 
 # Call Predictor API function
 def call_predictor_api(json_data):
-    API_KEY = "kkL8o-EO6G_7MTUz9mtKdszgeASisPSc2kNpLQNBwReT"
+    API_KEY = os.getenv("IBM_API_KEY")
     token_response = requests.post('https://iam.cloud.ibm.com/identity/token', data={"apikey": API_KEY, "grant_type": 'urn:ibm:params:oauth:grant-type:apikey'})
     print("token_response:", token_response)
     mltoken = token_response.json()["access_token"]
