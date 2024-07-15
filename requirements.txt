@@ -1,0 +1,11 @@
+chainlit==0.7.700
+python-dotenv==1.0.0
+langchain==0.1.13
+langchain-community==0.0.29
+langchain-core==0.1.33
+langchainhub==0.1.15
+langcodes==3.3.0
+langdetect==1.0.9
+langgraph==0.0.30
+langsmith==0.1.31
+ibm-watsonx-ai==1.0.312
